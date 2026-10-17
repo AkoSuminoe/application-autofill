@@ -10,7 +10,9 @@
     "watch": "node build.mjs --watch",
     "test": "vitest run",
     "test:watch": "vitest",
+    "pretest:mv3": "npm run build",
     "test:mv3": "node tests/mv3.smoke.mjs",
+    "premedia": "npm run build",
     "media": "node scripts/capture-media.mjs",
     "typecheck": "tsc --noEmit"
   },

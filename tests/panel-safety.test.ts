@@ -45,6 +45,14 @@ describe('actual panel bulk safety', () => {
     await openPanel(bank, [field('Why us?')]);
     expect(bulk().disabled).toBe(true);
   });
+  it('blocks an ambiguous checkbox answer and explains how to fix it', async () => {
+    const bank = emptyBank(); bank.settings.matching.highConfidence = 0;
+    bank.answers = [entry(['Available to relocate?'], 'Maybe')];
+    await openPanel(bank, [field('Available to relocate?', { kind: 'checkbox' })]);
+    expect(bulk().disabled).toBe(true);
+    expect(document.body.textContent).toContain('Use an explicit Yes or No');
+    expect([...document.querySelectorAll('button')].find(b => b.textContent === 'Fill')!.disabled).toBe(true);
+  });
   it.each(['switchTab', 'navigate'] as const)('stops remaining fills on %s', async action => {
     const bank = emptyBank(); bank.profile.firstName = 'Ada'; bank.profile.lastName = 'Lovelace';
     const env = await openPanel(bank, [field('First name', { id: 'f1' }), field('Last name', { id: 'f2' })]);

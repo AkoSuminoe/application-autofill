@@ -266,7 +266,8 @@ export function detectFields(root: ParentNode, opts: DetectOptions): RawField[] 
 
     const isGroup = kind === 'radio' || kind === 'checkboxGroup';
     const q = questionFor(el, controls, isGroup);
-    const description = isGroup ? '' : descriptionFor(el);
+    const group = isGroup ? groupContainer(el) : null;
+    const description = [...new Set([group ? descriptionFor(group) : '', ...controls.map(descriptionFor)])].filter(Boolean).join(' ');
     const container = el.closest('.field, .field-wrapper, .form-group, .application-question') ?? el.parentElement;
 
     const options =

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Graduate Software Engineer · Example Studio</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #202c25; background: #f4f5ef; font: 15px/1.5 system-ui, sans-serif; }
+    header { padding: 28px 48px 24px; background: #203e30; color: #fff; }
+    .eyebrow { font-size: 11px; font-weight: 650; letter-spacing: 2px; text-transform: uppercase; }
+    header .eyebrow { color: #c4ddcb; }
+    h1 { margin: 12px 0 4px; font-size: 32px; font-weight: 600; letter-spacing: -1px; }
+    header p { margin: 0; color: #dce7df; }
+    main { padding: 24px 48px; }
+    .story { display: flex; gap: 16px; align-items: center; margin-bottom: 20px; }
+    .step { border: 1px solid #b6c7b9; border-radius: 50%; min-width: 42px; height: 42px; display: grid; place-items: center; font-weight: 650; }
+    .story strong { display: block; font-size: 18px; }
+    .story p { margin: 2px 0 0; color: #59685e; }
+    form { padding: 24px 28px; background: #fff; border: 1px solid #dce2d8; border-radius: 12px; }
+    h2 { margin: 0 0 18px; font-size: 20px; font-weight: 600; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; }
+    label { display: block; font-size: 13px; font-weight: 600; }
+    input, select { width: 100%; margin-top: 6px; padding: 10px 12px; border: 1px solid #bdc9be; border-radius: 5px; background: white; color: #202c25; font: 15px system-ui; height: 42px; }
+    .wide { grid-column: 1 / -1; }
+    .review { border-top: 1px solid #e4e7e0; margin-top: 22px; padding-top: 18px; }
+    .review p { color: #687264; font-size: 12px; margin: 6px 0 0; }
+    .footer { display: flex; align-items: center; justify-content: space-between; margin-top: 22px; }
+    .footer span { font-size: 12px; color: #617268; }
+    button { background: #203e30; color: white; border: 0; border-radius: 5px; padding: 11px 18px; font: 600 13px system-ui; }
+    aside { display: flex; justify-content: space-between; margin-top: 18px; font-size: 11px; color: #617268; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">Example Studio / Careers</div>
+    <h1>Graduate Software Engineer</h1>
+    <p>London, United Kingdom · Full time · Fictional vacancy</p>
+  </header>
+  <main>
+    <div class="story" aria-live="polite">
+      <span class="step" id="demo-step">01</span>
+      <div><strong id="demo-title">Your answers, ready to reuse.</strong><p id="demo-caption">The extension matches this form against a local answer bank.</p></div>
+    </div>
+    <form id="application-form">
+      <h2>Apply for this role</h2>
+      <div class="grid">
+        <label>First name *<input id="first" autocomplete="given-name" required></label>
+        <label>Last name *<input id="last" autocomplete="family-name" required></label>
+        <label class="wide">Email *<input id="email" type="email" autocomplete="email" required></label>
+        <label>University<input id="university"></label>
+        <label>Graduation year<select id="graduation"><option value="">Choose a year</option><option>2026</option><option>2027</option></select></label>
+      </div>
+      <div class="review">
+        <label>Will you require visa sponsorship? *<select id="sponsorship" required><option value="">Choose an answer</option><option>Yes</option><option>No</option></select></label>
+        <p>Review this answer yourself before filling.</p>
+      </div>
+      <div class="footer"><span id="submission-status">Not submitted</span><button type="submit">Submit application</button></div>
+    </form>
+    <aside><span>LOCAL DEMO · FICTIONAL PROFILE · NETWORK BLOCKED</span><span>Application Autofill</span></aside>
+  </main>
+  <script>
+    window.__remixContext = {"loaderData":{"job":{"title":"Graduate Software Engineer","company_name":"Example Studio","questions":[]}}};
+  </script>
+  <script>
+    document.querySelector('form').addEventListener('submit', event => {
+      event.preventDefault(); document.body.dataset.submitted = 'yes';
+    });
+  </script>
+</body>
+</html>

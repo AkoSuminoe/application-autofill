@@ -2,7 +2,7 @@
 // Hard rule: never submit, never navigate. Only form controls and dropdown options are ever clicked.
 
 import { withinLimit } from '../shared/limits';
-import { resolveOption, resolveMultiple } from '../shared/matcher';
+import { resolveOption, resolveMultiple, checkboxValue } from '../shared/matcher';
 import { normalizeText } from '../shared/normalize';
 import type { FillResult } from '../shared/messages';
 import type { DetectedField } from '../shared/schema';
@@ -68,8 +68,6 @@ function highlight(el: HTMLElement): void {
   setTimeout(() => (target.style.outline = prev), 1200);
 }
 
-const isYes = (v: string) => /^(yes|y|true|1|checked|on|i agree|agree)\b/i.test(v.trim());
-
 function labelText(control: HTMLElement): string {
   const labels = (control as HTMLInputElement).labels;
   if (labels?.length) return textOf(labels[0]);
@@ -87,8 +85,12 @@ function fillText(el: HTMLInputElement | HTMLTextAreaElement, value: string): Fi
   fire(el, 'change');
   el.blur();
   if (el.value === value) return { status: 'ok' };
-  // Some fields reformat input (e.g. phone numbers lose their spaces).
-  return el.value ? { status: 'ok', detail: `page reformatted it to "${el.value}"` } : { status: 'failed', detail: 'The page cleared the value.' };
+  // Accept punctuation-only phone formatting, never an unrelated retained value.
+  const phone = (s: string) => /^[+\d\s().-]+$/.test(s) ? s.replace(/\D/g, '') : '';
+  if (el instanceof HTMLInputElement && el.type === 'tel' && phone(value) && phone(value) === phone(el.value)) {
+    return { status: 'ok', detail: 'The page reformatted the phone number.' };
+  }
+  return { status: 'failed', detail: el.value ? 'The page changed or restored the value. Review it on the page.' : 'The page cleared the value.' };
 }
 
 function fillSelect(el: HTMLSelectElement, value: string, values?: string[]): FillResult {
@@ -122,7 +124,8 @@ function fillRadio(controls: HTMLElement[], value: string): FillResult {
 }
 
 function fillCheckbox(el: HTMLInputElement, value: string): FillResult {
-  const want = isYes(value);
+  const want = checkboxValue(value);
+  if (want === null) return { status: 'refused', detail: 'Use an explicit Yes or No for this tick box.' };
   if (el.checked !== want && !safeClick(el)) return { status: 'refused' };
   return el.checked === want ? { status: 'ok' } : { status: 'failed' };
 }

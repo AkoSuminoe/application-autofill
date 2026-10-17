@@ -51,6 +51,9 @@ These topics are flagged ⚠ and never included in Fill all:
 - years of experience
 
 Anything in an EEOC or diversity-survey section counts as demographic, whatever its wording.
+Question labels and descriptive help text both contribute to sensitivity, including descriptions attached to radio/checkbox groups. The content script rechecks these immediately before each bulk fill.
+
+A single checkbox accepts only an explicit boolean answer such as Yes or No. Ambiguous prose is excluded from bulk fill and refused by the filler. Text filling reports failure when the page restores or changes the requested value; telephone punctuation changes are accepted only when all digits are preserved.
 
 The AI context builder decides what can be sent to a model:
 - **Sensitivity check:** it uses every saved wording of a question, plus its stored sensitivity label. Detected demographic and disability answers are excluded even when the label is missing.
@@ -80,6 +83,7 @@ There is no broad `tabs` permission, so switching tabs with the panel already op
 ## Saving, backups and schema v2
 
 - **Single writer:** all writes go through one service-worker queue.
+- **Storage boundary:** `chrome.storage.local` is restricted to `TRUSTED_CONTEXTS`. Content scripts cannot read the bank or API keys directly. The worker accepts bank operations only from this extension's options page and side panel, and waits for the access restriction before processing them.
 - **Field-level saves:** profile and settings saves change only the edited fields, so an older options window can't erase answers added from the panel.
 - **Conflicts:** conflicting edits or deletions produce an error and keep your draft. Unrelated edits can merge.
 
@@ -106,7 +110,8 @@ The unit and regression suite covers:
 - privacy filtering
 - content-side freshness checks
 
-`npm run test:mv3` loads `dist/` in an isolated headless Chromium profile and uses intercepted fixture pages. It never submits a real application. It runs the real worker, options page and panel, and checks:
+`npm run test:mv3` builds and loads `dist/` in an isolated headless Chromium profile and uses intercepted fixture pages. It never submits a real application. It runs the real worker, options page and panel, and checks:
+- denied direct storage access and worker bank requests from an actual content-script context
 - profile/answer concurrency
 - graduation filling
 - multiple selections
@@ -115,7 +120,7 @@ The unit and regression suite covers:
 
 Native toolbar activation and accepting the browser permission prompt are covered by mocked API tests. Verify those two by hand before packaging a release.
 
-`npm run media` regenerates the README demo against a live Greenhouse job, using a fictional profile. It only fills fields.
+`npm run media` builds the extension and regenerates the README GIF, MP4, captions and screenshots against `tests/fixtures/demo-application.html`. Its Greenhouse-shaped URL is fulfilled locally; all other HTTP(S) requests are aborted. It uses a fresh Chromium profile and fictional answers, asserts the five bulk-filled values, checks that sponsorship remains empty until individual review, and fails if submission or a network write is attempted. It requires Playwright Chromium and FFmpeg. It demonstrates fixture behaviour, not compatibility with a current live vacancy.
 
 ## Lessons from live Greenhouse pages
 

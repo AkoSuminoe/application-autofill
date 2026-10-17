@@ -1,6 +1,6 @@
 // Picks the ATS adapter for the current page. Each new platform adds one adapter here.
 
-import { classifySensitive } from '../../shared/sensitive';
+import { effectiveSensitive } from '../../shared/sensitive';
 import type { PageInfo } from '../../shared/schema';
 import { detectFields, textOf, type DetectOptions, type RawField } from './generic';
 import { greenhouse } from './greenhouse';
@@ -32,7 +32,7 @@ export function scanPage(doc: Document, loc: Location, opts: DetectOptions): { a
   const root = adapter.root?.(doc) ?? doc.body ?? doc;
   const raw = detectFields(root, opts);
   adapter.enhance?.(raw, doc);
-  for (const r of raw) r.field.sensitive = classifySensitive(r.field.question, r.field.section);
+  for (const r of raw) r.field.sensitive = effectiveSensitive([r.field.question, r.field.description ?? ''], r.field.sensitive, r.field.section);
   const page: PageInfo = {
     url: loc.href,
     ats: adapter.name,

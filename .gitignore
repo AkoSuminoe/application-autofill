@@ -2,6 +2,11 @@ node_modules/
 dist/
 *.log
 .env
+.env.*
+!.env.example
+application-autofill-*.json
+playwright-report/
+test-results/
 *.tmp.mjs
 # Local-only notes
 REVIEW.tr.md

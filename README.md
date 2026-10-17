@@ -2,166 +2,209 @@
 
 # Application Autofill
 
-**A privacy-first Chrome extension that fills job applications from your own answer bank, and never submits for you.**
+### Your answers. Your browser. Your final say.
 
-![Manifest V3](https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white)
+Fill repetitive job application fields from a local answer bank.<br>
+Review sensitive questions yourself. Submit only when you are ready.
+
+[![Checks](https://github.com/AkoSuminoe/application-autofill/actions/workflows/ci.yml/badge.svg)](https://github.com/AkoSuminoe/application-autofill/actions/workflows/ci.yml)
+![Chrome](https://img.shields.io/badge/Chrome-116%2B-4285F4?logo=googlechrome&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-130%20passing-2f6f4f)
-![Runtime dependencies](https://img.shields.io/badge/runtime%20dependencies-0-2f6f4f)
-![Data](https://img.shields.io/badge/data-100%25%20local-2f6f4f)
+![Runtime dependencies](https://img.shields.io/badge/runtime_dependencies-0-2f6f4f)
+[![License](https://img.shields.io/badge/license-MIT-2f6f4f)](LICENSE)
 
-<img src="docs/media/demo.gif" alt="Side panel filling a live Greenhouse application: profile fields fill automatically, the right-to-work question is reviewed and filled by hand" width="900">
-
-<sub>Recorded on a live Greenhouse job with a fictional profile. Safe fields fill in one click. Sensitive questions are flagged for review. Nothing is submitted.</sub>
+[Get started](#get-started) · [See the demo](#see-it-work) · [Tests](#tests-you-can-run) · [Privacy](#privacy-and-permissions)
 
 </div>
 
----
+## See it work
+
+<img src="docs/media/demo.gif" alt="Four-step offline demo: detect six fields, fill five safe matches, review sponsorship individually, then leave the completed application unsubmitted." width="1100">
+
+**[Watch or download the MP4](docs/media/demo.mp4)** · [Text captions](docs/media/demo.vtt)
+
+The demo runs the **real built extension** against a bundled fictional vacancy. Five fields fill together; sponsorship stays empty until reviewed individually. The form is never submitted. Screenshots are composed into a short, captioned walkthrough.
+
+All names, contact details and education shown are fictional. Recording uses a fresh browser profile, a locally intercepted form, and blocked external HTTP(S) traffic. It does not use personal browser data or contact a live employer.
 
 ## Why I built it
 
-As a final-year Software Engineering student applying to many UK graduate roles, I found that most application forms ask the same questions in slightly different words. "Will you require visa sponsorship?" and "Do you now or in the future need sponsorship?" have the same answer, but every form makes you type it again.
+Job applications keep asking the same questions in slightly different words. Browser autofill helps with contact details, but leaves repeated free-text answers, education fields and eligibility questions to be entered again.
 
-Browser autofill handles names and emails, but not free-text questions, custom dropdowns or right-to-work wording. Most "AI apply" tools work by sending your data to someone else's server. I wanted something that:
+I built Application Autofill to reuse answers I have already written, show why each answer matches, and keep the final review in my hands. It works without an account, a backend or an AI subscription.
 
-- **understands the question**, not just the field name
-- **keeps every answer on my machine**
-- **leaves the final decision to me**: it never clicks Submit, and sensitive questions always need a human
+## What you can do
 
-## What it does
-
-| | |
-|---|---|
-| 🔍 **Detects every question** | Reads labels, ARIA attributes, placeholders and nearby text. Handles text inputs, textareas, selects, radio groups, checkboxes and custom React dropdowns. |
-| 🧠 **Matches by meaning** | UK/US-spelling-aware normalisation, concept detection and fuzzy scoring. Paraphrased questions map to the same saved answer, with a visible confidence score. |
-| ⚡ **Fills in one click** | Writes values the way React-controlled forms expect, and checks that each value actually stuck. |
-| 🛡️ **Flags knockout questions** | Right to work, sponsorship, criminal record, disability and demographic questions get a ⚠ badge and are never bulk-filled. |
-| 📚 **Learns as you go** | Every accepted answer teaches the bank a new wording, so the next form is instant. |
-| 🔒 **Stays local** | Profile, answers and API keys live in `chrome.storage.local`. No backend, no analytics, no tracking. |
+| Feature | What it does |
+| --- | --- |
+| **Reuse your profile** | Match names, contact details, links, education and other saved profile fields. |
+| **Build an answer bank** | Save answers with multiple question wordings, tags and company-specific scopes. |
+| **Review before filling** | See the suggested answer, matching score, limits and warnings beside the form. Scores are heuristics, not probabilities. |
+| **Fill safe matches together** | Bulk fill skips sensitive questions, existing values, ambiguous matches, missing options and answers over the limit. |
+| **Handle modern controls** | Fill native inputs, selects, radio groups, checkboxes and supported React-style dropdowns. Verify the resulting value. |
+| **Keep company answers separate** | Motivation and other company-dependent answers require the appropriate company scope for automatic reuse. |
+| **Learn successful wording** | A successful, unambiguous fill can add the new question wording to its saved answer. |
+| **Back up your work** | Export JSON; merge or replace an imported bank with validation and conflict checks. API keys are excluded by default. |
 
 <table>
-<tr>
-<td width="40%" valign="top">
-
-**Side panel**: every detected question with its matched answer, confidence, character limit and warnings.
-
-<img src="docs/media/panel.png" alt="Side panel listing detected questions with confidence badges and sensitive-question warnings" width="100%">
-
-</td>
-<td width="60%" valign="top">
-
-**Answer bank**: profile, saved answers, settings, and JSON backup/restore.
-
-<img src="docs/media/options.png" alt="Options page with the profile form" width="100%">
-
-</td>
-</tr>
+  <tr>
+    <td width="38%" valign="top">
+      <b>Review beside the application</b><br><br>
+      <img src="docs/media/panel.png" alt="Actual extension side panel showing six detected fields, five eligible bulk matches and one flagged question." width="100%">
+    </td>
+    <td width="62%" valign="top">
+      <b>Your profile and answer bank</b><br><br>
+      <img src="docs/media/options.png" alt="Actual options page populated only with fictional example details." width="100%">
+    </td>
+  </tr>
 </table>
+
+## Get started
+
+**Requirements:** Node.js 24, npm, and Chrome 116 or newer. Node.js 24 was used for local verification and is configured in CI. This repository is loaded as an unpacked extension.
+
+```sh
+git clone https://github.com/AkoSuminoe/application-autofill.git
+cd application-autofill
+npm ci
+npm run build
+```
+
+1. Open `chrome://extensions` and enable **Developer mode**.
+2. Choose **Load unpacked** and select the generated `dist/` folder.
+3. Add your details on the options page, then click **Save profile**.
+4. Open a Greenhouse application and click the extension icon or press **Alt+Shift+F**.
+5. Review the suggestions. Use **Fill all high-confidence** for eligible fields and **Fill** for individual answers.
+6. Check the completed application and upload any required files yourself. Submit from the employer's page when ready.
+
+For another HTTPS site, invoke the extension on that tab and select **Enable on this site**. Chrome will request access to that host. This permission persists until you revoke it in Chrome's extension settings.
+
+After code changes, rebuild and reload the extension at `chrome://extensions`, then refresh the application page. `npm run watch` rebuilds TypeScript automatically; restart it after changing files in `static/`.
+
+## Current support
+
+| Area | Status |
+| --- | --- |
+| Greenhouse | Dedicated adapter, saved-page detection fixtures and local Chromium integration checks. Live sites can change. |
+| Other HTTPS forms | Generic detection after per-site permission; compatibility depends on the controls and page structure. |
+| Lever, Ashby, Workable, SmartRecruiters, Workday, LinkedIn Easy Apply | No dedicated adapters or verified end-to-end support yet. |
+| CV and file uploads | Manual. |
+| AI drafting | Not implemented. Settings and privacy-filter scaffolding exist, but no model requests are made. No API key is needed. |
+| Application submission | Manual. The extension does not intentionally click submit buttons, navigate or send Enter. |
+
+Sensitive detection is rule based and can miss unfamiliar wording. Closed shadow roots, unusual dropdowns, cross-origin frames without permission and dynamically changing forms may need manual completion. Always review the actual form before submitting.
+
+## Privacy and permissions
+
+The extension has **no backend, telemetry or analytics**. Profile, answers and optional stored keys live in `chrome.storage.local`; this storage is restricted to trusted extension contexts. Page content scripts receive the answer requested for a fill, rather than reading the full bank or keys directly.
+
+**Filling a field shares its value with that website.** A site can observe input events or autosave before you press Submit. Local storage describes where the answer bank lives; it does not make answers inserted into a website private from that website. Local storage and exported JSON are not encrypted by this extension, and backups contain personal answers.
+
+| Permission | Purpose |
+| --- | --- |
+| `storage` | Save your local profile, answers and settings. |
+| `sidePanel` | Display the review panel. |
+| `scripting` | Enable the content script on an explicitly approved site. |
+| `activeTab` | Temporarily identify/access the tab after invoking the extension. |
+| Four Greenhouse hosts | Detect forms automatically on the supported US/EU board hosts. |
+| Optional HTTPS host access | Request a specific site when you choose **Enable on this site**. The manifest does not grant access to every site at install. |
+
+The Greenhouse adapter may fetch the current job page once to recover dropdown definitions removed during hydration. AI drafting is disabled. Future AI support would require a separate, explicit data-sharing choice.
+
+## Tests you can run
+
+```sh
+npm test                         # unit, regression and React integration tests
+npm run typecheck                # strict TypeScript checks
+npx playwright install chromium # one-time browser install
+npm run test:mv3                 # builds, then tests the actual MV3 extension
+```
+
+| Layer | Evidence |
+| --- | --- |
+| **Unit and regression** | Normalisation, matching, polarity, company scope, limits, imports, migrations, write races and privacy filters. |
+| **Saved Greenhouse fixtures** | Form detection, UK diversity questions and US EEOC sections. |
+| **React integration** | Controlled text/select/radio/checkbox inputs and dropdowns update application state without submitting the form. |
+| **Safety regressions** | Ambiguous checkbox answers are refused; descriptive text flags sensitive questions; changed text is not reported as a successful fill. |
+| **Chromium MV3 smoke** | Real worker/options/panel, concurrent edits, multiple selections, company separation, denied content-script storage access, sender validation and no submission. |
+| **Offline demo assertions** | Five expected values fill, sponsorship requires individual review, and no submission or network write occurs. |
+
+The [GitHub Actions workflow](.github/workflows/ci.yml) runs type checking, the test suite and the Chromium smoke test on pushes and pull requests. Native toolbar interaction and permission-prompt acceptance are tested with API mocks; they still need a manual release check. The offline demo is not a claim of current live-site compatibility.
+
+Review findings, fixes and local verification results are recorded in [docs/REVIEW.md](docs/REVIEW.md).
+
+### Reproduce the GIF, video and screenshots
+
+Install **FFmpeg** on your PATH and Playwright Chromium, then run:
+
+```sh
+npm run media
+```
+
+This builds the extension, loads [the fictional application fixture](tests/fixtures/demo-application.html), verifies the fill sequence, and produces `demo.gif`, `demo.mp4`, `demo.vtt`, `panel.png` and `options.png` in `docs/media/`. External job URLs are not accepted. The MP4 has no audio; captions are supplied separately and the walkthrough includes visible text.
 
 ## How it works
 
 ```mermaid
 flowchart LR
-    subgraph Page["Job application page"]
-        CS["Content script<br/>detect · fill · verify"]
-    end
-    subgraph Ext["Extension"]
-        SP["Side panel<br/>review · copy · fill"]
-        SW["Service worker<br/>single-writer store"]
-        OP["Options page<br/>profile · answer bank"]
-    end
-    DB[("chrome.storage.local")]
-
-    CS -- "detected fields" --> SP
-    SP -- "fill request (per frame)" --> CS
-    SP -- "learn / save" --> SW
-    OP -- "edit / import" --> SW
-    SW <--> DB
+    Form["Application form"] --> Detect["Detect labels, options and help text"]
+    Detect --> Panel["Match and review in side panel"]
+    Panel -->|"Selected answer"| Fill["Fill and verify"]
+    Fill --> Form
+    Panel -->|"Save or learn wording"| Worker["Service worker"]
+    Options["Profile and answer bank"] --> Worker
+    Worker <--> Bank[("Local storage")]
 ```
 
-1. **Detect.** A platform adapter (Greenhouse today) layers platform knowledge on top of a generic DOM scanner: question text, dropdown options, help text and EEOC sections.
-2. **Match.** Each question is normalised and scored against the profile and every saved wording in the answer bank. Concepts such as *sponsorship*, *right to work* or *notice period* carry most of the weight, so paraphrases still match. Company- or technology-specific questions ("Why Figma?", "Years of Python?") need close wording.
-3. **Review.** The side panel shows every match with a confidence score. Sensitive, low-confidence, opposite-polarity and over-length answers are excluded from bulk fill.
-4. **Fill and verify.** Values go in through native setters and real input events. Dropdown choices are confirmed against what the page actually shows.
+Detection combines a generic DOM scanner with an ATS adapter. Matching uses normalised wording, factual concepts and fuzzy scoring, with guards for negation, ambiguous answers and company scope. Native setters and input events support controlled forms; verification checks what the page retained.
 
-## Engineering highlights
-
-- **Works with real React forms.** Live testing showed that Greenhouse's dropdown wrapper only opens on `mouseup`/`keyup` and ignores synthetic `input` events. The filler reproduces the right event sequence and scopes option lookups to each dropdown's own listbox, because a phone widget keeps a hidden list of hundreds of country "options" in the page.
-- **Survives framework hydration.** Greenhouse's page data (`__remixContext`) is removed while the page loads. The adapter caches it, or re-fetches the page once, so dropdown options are known before you open them.
-- **Matching that knows what it doesn't know.** Without the polarity guard, "Can you work *without* sponsorship?" would get your "Do you need sponsorship?" answer, which means the opposite. That answer is capped and flagged instead. "Are you a US Person?" no longer matches UK right-to-work answers. Statement options like "I'm a citizen…" aren't treated as a "Yes".
-- **Safe by construction.** The filler only ever clicks radios, checkboxes and dropdown options. It refuses buttons and links, never calls `submit()` and never sends Enter.
-- **Concurrency-safe storage.** All writes go through one service-worker queue with field-level patches and conflict detection, so the panel and the options page can't overwrite each other. A versioned schema migrates v1 data, with an automatic backup first.
-- **Privacy rules in code.** Demographic and disability answers, contact details and other companies' answers are filtered out before anything could reach an AI model, and tests enforce it.
-- **Least-privilege permissions.** It runs automatically on Greenhouse only. Any other site needs a one-off, per-site permission.
-
-## Testing
-
-| Layer | What it covers |
-|---|---|
-| **Unit and regression** (Vitest, 130 tests) | Normaliser, matcher (paraphrase, polarity and false-positive cases), sensitive-question rules, limits, schema validation and migration, worker write races, privacy filters |
-| **Real-page fixtures** | Detection runs against saved Greenhouse applications (Monzo: UK diversity survey; Figma: US EEOC) |
-| **React integration** | Controlled inputs, selects, radios and react-select-style dropdowns rendered in jsdom. The tests assert that React state really changed and that no form was submitted. |
-| **Extension smoke test** | Loads the built MV3 extension in headless Chromium and drives the real options page, worker and panel |
-| **Live end-to-end** | `npm run media` records the demo above on a live Greenhouse job, with a network guard that blocks any application POST |
-
-```sh
-npm test            # unit + integration
-npm run typecheck   # strict TypeScript
-npm run test:mv3    # headless extension smoke test (after: npx playwright install chromium)
-```
-
-## Getting started
-
-```sh
-git clone https://github.com/AkoSuminoe/application-autofill.git
-cd application-autofill
-npm install
-npm run build       # outputs dist/
-```
-
-1. Open `chrome://extensions` and turn on **Developer mode**.
-2. Click **Load unpacked** and select `dist/`.
-3. Fill in your profile on the options page that opens.
-4. Open a Greenhouse application. Click the toolbar icon or press **Alt+Shift+F**.
-
-## Tech stack
-
-**TypeScript** (strict) · **Chrome Extensions Manifest V3** (side panel, service worker, scripting, optional host permissions) · **esbuild** · **Vitest** + **jsdom** (with React for integration tests) · **Playwright** · zero runtime dependencies, with no UI framework in the extension itself.
+All bank writes pass through a service-worker queue. Field-level patches preserve unrelated edits, conflicts keep the draft for review, and schema migration backs up older data before replacing it.
 
 <details>
-<summary><b>Project structure</b></summary>
+<summary><b>Project structure and stack</b></summary>
 
-```
+```text
 src/
-├── background/      service worker + single-writer storage queue
-├── content/
-│   ├── detect/      generic DOM scanner + per-ATS adapters (greenhouse.ts)
-│   └── fill.ts      React-safe filling and verification
-├── shared/          schema, normaliser, matcher, sensitive rules, limits, validation
-├── sidepanel/       review UI
-├── options/         profile, answer bank, settings, backup
-└── llm/             system prompt + provider interface (privacy filter enforced)
-tests/               unit, integration, fixtures, MV3 smoke test
-scripts/             demo recorder
-docs/                design notes and media
+  background/     service worker and serialized storage operations
+  content/        detection adapters, field filling and verification
+  shared/         matching, schema, validation, privacy and storage helpers
+  sidepanel/      review and fill interface
+  options/        profile, answers, settings and backup
+  llm/            future drafting interface and context filters
+tests/            unit, React integration, browser smoke and HTML fixtures
+scripts/          offline demo recorder
+static/           manifest, HTML, CSS and extension icons
+docs/             design notes, review results and demo media
 ```
+
+TypeScript · Manifest V3 · esbuild · Vitest · jsdom · Playwright. React is used in integration tests; the extension itself has no runtime dependencies or UI framework.
 
 </details>
 
+For detailed matching, scoping and storage behaviour, see [the design notes](docs/DESIGN.md).
+
+## Troubleshooting
+
+| Symptom | Next step |
+| --- | --- |
+| No fields appear | Open the application form, refresh after loading the extension, then select **Rescan**. |
+| Generic site cannot be enabled | Click the extension icon on that tab first. Use an HTTPS page and accept the specific host permission. |
+| An answer is skipped | Check the sensitivity, company, ambiguity, length or already-filled warning on its card. |
+| Dropdown selection fails | Choose the value on the page; unsupported controls can need manual completion. |
+| Saving reports a conflict | Keep your draft, compare against the latest saved data, then reapply the intended change. |
+| Browser tests cannot launch | Run `npx playwright install chromium`; on Linux CI, use `npx playwright install --with-deps chromium`. |
+| Media recording cannot start | Check `ffmpeg -version` and install Playwright Chromium. |
+
 ## Roadmap
 
-- [x] Greenhouse: detection, matching, side panel, React-safe filling
-- [x] Answer bank with import/export, scopes and schema migration
-- [ ] AI drafting (Claude / OpenAI / Gemini, your own key, off by default) with a plain-British-English, no-invented-facts prompt
-- [ ] Lever · Ashby · Workable · SmartRecruiters · Workday · LinkedIn Easy Apply
-- [ ] Application tracker with CSV export
+- [x] Greenhouse adapter and generic form detection
+- [x] Profile, company-scoped answer bank and validated backups
+- [x] Reviewed filling with regression and browser checks
+- [x] Reproducible offline GIF/video walkthrough
+- [ ] Dedicated adapters for more application platforms
+- [ ] Opt-in AI drafting with explicit data-sharing controls
+- [ ] Application tracker and CSV export
 
-Detailed behaviour, scoping rules and lessons from live pages are in **[docs/DESIGN.md](docs/DESIGN.md)**.
+## Author and license
 
-## Privacy
-
-Everything stays in your browser. There is no server and no telemetry. Exports leave API keys out unless you choose to include them. The demo media uses a fictional profile.
-
-## License
-
-[MIT](LICENSE)
+Built and maintained by **[AkoSuminoe](https://github.com/AkoSuminoe)**. Licensed under [MIT](LICENSE).

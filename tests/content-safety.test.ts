@@ -37,4 +37,12 @@ describe('fresh content-side checks', () => {
   it('rejects a request addressed to a previous URL', async () => {
     expect((await fill({ pageUrl: 'https://previous.example/' })).status).toBe('refused');
   });
+  it('refuses bulk fill when sensitive help text appears after the panel scan', async () => {
+    const help = document.createElement('p');
+    help.id = 'help'; help.textContent = 'Please describe your disability.';
+    document.body.append(help);
+    document.querySelector('input')!.setAttribute('aria-describedby', help.id);
+    expect((await fill()).status).toBe('refused');
+    expect(document.querySelector('input')!.value).toBe('');
+  });
 });

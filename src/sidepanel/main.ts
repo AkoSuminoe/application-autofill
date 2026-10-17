@@ -359,7 +359,9 @@ function renderCard(r: Row): HTMLElement {
     if (pick.scopeWarning) body.push(h('p', { class: 'warn' }, 'Company not verified: excluded from Fill all. Review carefully, or edit and save a copy for this company.'));
     if (pick.reviewRequired) body.push(h('p', { class: 'warn' }, 'Ambiguous match. Review this answer manually.'));
     if (pick.polarityWarning) body.push(h('p', { class: 'warn' }, 'This question is worded the opposite way to the saved one. Check the Yes/No.'));
-    if (pick.optionMissing) body.push(h('p', { class: 'warn' }, `The saved answer doesn’t match any option. Options: ${field.options.slice(0, 8).join(' · ')}`));
+    if (pick.optionMissing) body.push(h('p', { class: 'warn' }, field.kind === 'checkbox'
+      ? 'Use an explicit Yes or No for this tick box. Edit the saved answer before filling.'
+      : `The saved answer doesn’t match any option. Options: ${field.options.slice(0, 8).join(' · ')}`));
     if (tooLong && field.limit) {
       const t = trimToLastSentence(r.answer, field.limit);
       body.push(

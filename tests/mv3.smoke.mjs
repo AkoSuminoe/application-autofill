@@ -40,6 +40,17 @@ try {
   await form.goto('https://job-boards.greenhouse.io/review/jobs/1');
   await form.locator('#first[data-aa-id]').waitFor();
   const tabId = await worker.evaluate(async () => (await chrome.tabs.query({ url: 'https://job-boards.greenhouse.io/review/*' }))[0].id);
+  // Verify the real Chrome boundary, not a mock: content scripts cannot read the bank
+  // or bypass the sender allowlist via the worker message endpoint.
+  const [access] = await worker.evaluate(async tabId => chrome.scripting.executeScript({
+    target: { tabId }, world: 'ISOLATED', func: async () => {
+      let storageDenied = false;
+      try { await chrome.storage.local.get('bank'); } catch { storageDenied = true; }
+      const response = await chrome.runtime.sendMessage({ type: 'bankMutation', operation: { kind: 'readBank' } });
+      return { storageDenied, messageDenied: response?.ok === false };
+    },
+  }), tabId);
+  assert.deepEqual(access.result, { storageDenied: true, messageDenied: true });
   const panel = await context.newPage();
   await panel.goto(`chrome-extension://${id}/sidepanel.html?tabId=${tabId}`);
   await panel.locator('.card').first().waitFor();
@@ -89,7 +100,7 @@ try {
   assert.equal(await generic.locator('[data-aa-id]').count(), 0);
 
   assert.deepEqual(errors, []);
-  console.log('MV3 PASS: real worker/options/panel; profile + answer concurrency; graduation; two selections; company isolation; no submit; generic site denied before gesture.');
+  console.log('MV3 PASS: real worker/options/panel; content-script storage denied; sender checks; profile + answer concurrency; graduation; two selections; company isolation; no submit; generic site denied before gesture.');
   console.log('Native toolbar/permission prompt acceptance is covered by API-mock tests, not this headless smoke.');
 } finally {
   await context.close();

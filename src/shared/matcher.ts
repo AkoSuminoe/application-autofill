@@ -80,6 +80,14 @@ export interface MatchCandidate {
 
 const CHOICE_KINDS: FieldKind[] = ['select', 'radio', 'combobox', 'checkboxGroup'];
 
+/** A tick box needs an explicit boolean, never a guess from arbitrary prose. */
+export function checkboxValue(value: string): boolean | null {
+  const text = normalizeText(value);
+  if (/^(yes|y|true|1|checked|on|i agree|agree)$/.test(text)) return true;
+  if (/^(no|n|false|0|unchecked|off|i do not agree|disagree)$/.test(text)) return false;
+  return null;
+}
+
 // ---- Option resolution ----
 
 const YES = /^(yes|y|true|i do|i am|i have|i can|i will|correct|agree|i agree)\b/;
@@ -312,6 +320,9 @@ function answerCandidate(field: DetectedField, q: Prepared, entry: AnswerEntry):
 
 /** Adjusts a candidate for fields with a fixed set of options. */
 function applyOptions(field: DetectedField, c: MatchCandidate): MatchCandidate {
+  if (field.kind === 'checkbox' && checkboxValue(c.rawAnswer) === null) {
+    return { ...c, optionMissing: true, score: Math.min(c.score, OPTION_MISSING_CAP) };
+  }
   if (field.multiple) {
     const values = field.options.length ? resolveMultiple(c.rawAnswer, field.options, c.values) : c.values;
     return values?.length ? { ...c, values, answer: values.join(', ') } : { ...c, optionMissing: true, score: Math.min(c.score, OPTION_MISSING_CAP) };
