@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Application Autofill: Answer bank</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="options">
+    <div class="wrap">
+      <h1>Application Autofill</h1>
+      <p class="muted">Everything here is stored only in this browser (chrome.storage.local). Nothing is sent anywhere.</p>
+
+      <nav class="tabs">
+        <a href="#profile-section">Profile</a>
+        <a href="#answers-section">Answers</a>
+        <a href="#settings-section">Settings</a>
+        <a href="#backup-section">Backup</a>
+      </nav>
+
+      <section id="profile-section">
+        <h2>Profile</h2>
+        <div id="profile"></div>
+      </section>
+
+      <section id="answers-section">
+        <h2>Answer bank <span id="answers-count" class="muted small"></span></h2>
+        <div class="toolbar">
+          <input id="answers-search" type="search" placeholder="Search questions and answers" />
+          <button id="add-answer" class="primary">+ New answer</button>
+        </div>
+        <div id="answers-list"></div>
+      </section>
+
+      <section id="settings-section">
+        <h2>Settings</h2>
+        <div id="settings"></div>
+      </section>
+
+      <section id="backup-section">
+        <h2>Backup</h2>
+        <div class="actions">
+          <button id="export" class="primary">Export JSON</button>
+          <label class="check"><input id="export-keys" type="checkbox" /> Include API keys</label>
+        </div>
+        <div class="actions">
+          <label class="button">Import JSON <input id="import" type="file" accept="application/json,.json" hidden /></label>
+          <label class="check"><input type="radio" name="import-mode" value="merge" checked /> Merge</label>
+          <label class="check"><input type="radio" name="import-mode" value="replace" /> Replace everything</label>
+        </div>
+        <p id="backup-status" class="status"></p>
+      </section>
+    </div>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

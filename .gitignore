@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.log
+.env
+*.tmp.mjs
+# Local-only notes
+REVIEW.tr.md
